@@ -57,8 +57,7 @@ RetailShield/
 
 ## Live Demo
 
-(https://satya-anusha-nathipam.github.io/RetailShield/)
-
+(https://sainarasimhalakshmiakula.github.io/RetailShield/)
 ---
 
 ## Installation & Setup
@@ -99,4 +98,4 @@ Open `index.html` in your browser
 ---
 
 ## Developer
-Sankuru Kavya Varshini Gayatri B.Tech IT Pragati Engineering College.
+Sai Narasimhalakshmi Akula B.Tech IT Pragati Engineering College.
