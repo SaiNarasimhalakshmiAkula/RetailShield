@@ -99,4 +99,4 @@ Open `index.html` in your browser
 ---
 
 ## Developer
-Satya Anusha Nathipam B.Tech IT Pragati Engineering College.
+Sankuru Kavya Varshini Gayatri B.Tech IT Pragati Engineering College.
