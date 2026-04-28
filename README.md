@@ -57,7 +57,7 @@ RetailShield/
 
 ## Live Demo
 
-(Add your GitHub Pages link here after deployment)
+(https://satya-anusha-nathipam.github.io/RetailShield/)
 
 ---
 
@@ -87,17 +87,6 @@ node server.js
 
 Open `index.html` in your browser
 (or use Live Server in VS Code)
-
----
-
-## Environment Variables
-
-Create a `.env` file in the backend folder and add:
-
-```
-PORT=5000
-DATABASE_URL=your_database_url
-```
 
 ---
 
