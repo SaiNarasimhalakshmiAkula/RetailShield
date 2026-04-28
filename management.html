@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RetailShield — Management</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">🛡️</div>
+    <div class="brand-name">Retail<span>Shield</span></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Analytics</div>
+    <div class="nav-item" data-view="overview">
+      <span class="icon">📊</span><span class="label">Overview</span>
+    </div>
+    <div class="nav-item" data-view="trends">
+      <span class="icon">📈</span><span class="label">Incident Trends</span>
+    </div>
+    <div class="nav-item" data-view="zones">
+      <span class="icon">🗺️</span><span class="label">Risk Zones</span>
+    </div>
+    <div class="nav-item" data-view="reports">
+      <span class="icon">📄</span><span class="label">Monthly Reports</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">System</div>
+    <div class="nav-item" data-view="staff">
+      <span class="icon">👥</span><span class="label">Staff Access Control</span>
+    </div>
+    <div class="nav-item" data-view="theft">
+      <span class="icon">💰</span><span class="label">Theft Analytics</span>
+    </div>
+    <div class="nav-item" data-view="cameras">
+      <span class="icon">📷</span><span class="label">Camera Manager</span>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" id="av">M</div>
+      <div class="user-meta">
+        <div class="user-name" id="uname">Manager</div>
+        <div class="user-role">Management</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Out</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Management Overview</div>
+    <div class="topbar-pill"><div class="pulse"></div>Live Analytics</div>
+    <div class="topbar-time" id="clock">--</div>
+  </div>
+
+    <div class="page">
+
+    <!-- ── STAFF ACCESS CONTROL ── -->
+    <div class="view" id="view-staff">
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title">👥 Staff Access Control</div>
+          <button class="btn btn-primary" onclick="openStaffModal()">+ Add Staff Member</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Staff ID</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="staff-table-body">
+              <!-- populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── THEFT ANALYTICS ── -->
+    <div class="view" id="view-theft">
+      <div class="stats-row">
+        <div class="stat-card red">
+          <div class="stat-top">
+            <div class="stat-label">Top Theft Area</div>
+            <div class="stat-icon-wrap">📍</div>
+          </div>
+          <div class="stat-value" id="theft-top-area">Electronics</div>
+          <div class="stat-footer">12 incidents</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-top">
+            <div class="stat-label">Top Resolver</div>
+            <div class="stat-icon-wrap">👤</div>
+          </div>
+          <div class="stat-value" id="theft-top-staff">John Doe</div>
+          <div class="stat-footer" id="theft-top-count">12 cases</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-top">
+            <div class="stat-label">Total Thefts</div>
+            <div class="stat-icon-wrap">💰</div>
+          </div>
+          <div class="stat-value" id="theft-total">27</div>
+          <div class="stat-footer">This month</div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Theft by Location</div></div>
+          <div class="chart-wrap"><canvas id="theft-chart-location"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Resolution Leaderboard</div></div>
+          <div class="card-body">
+            <div style="height:240px;overflow-y:auto" id="theft-leaderboard">
+              <!-- leaderboard items -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Recent Theft Incidents</div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Time</th><th>Camera</th><th>Item</th><th>Staff</th><th>Status</th></tr>
+            </thead>
+            <tbody id="theft-table-body">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── OVERVIEW ── -->
+    <div class="view" id="view-overview">
+      <div class="stats-row" style="grid-template-columns:repeat(5,1fr)">
+        <div class="stat-card red">
+          <div class="stat-top"><div class="stat-label">This Week</div><div class="stat-icon-wrap">🚨</div></div>
+          <div class="stat-value">47</div>
+          <div class="stat-footer"><span class="up">▲ +12%</span> vs last week</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-top"><div class="stat-label">This Month</div><div class="stat-icon-wrap">📅</div></div>
+          <div class="stat-value">183</div>
+          <div class="stat-footer"><span class="up">▲ +8%</span> vs last month</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-top"><div class="stat-label">Detection Rate</div><div class="stat-icon-wrap">⚡</div></div>
+          <div class="stat-value">94<span style="font-size:1rem">%</span></div>
+          <div class="stat-footer"><span class="down">▲ improved</span></div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-top"><div class="stat-label">Avg Response</div><div class="stat-icon-wrap">⏱️</div></div>
+          <div class="stat-value">2.4<span style="font-size:1rem">m</span></div>
+          <div class="stat-footer"><span class="down">▼ faster</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-label">Loss Prevented</div><div class="stat-icon-wrap">💰</div></div>
+          <div class="stat-value" style="font-size:1.4rem">₹1.2L</div>
+          <div class="stat-footer"><span class="down">This month</span></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Daily Incidents — Last 30 Days</div></div>
+          <div class="chart-wrap"><canvas id="ch-monthly"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Severity Breakdown</div></div>
+          <div class="chart-wrap" style="display:flex;align-items:center;justify-content:center"><canvas id="ch-donut" style="max-width:200px"></canvas></div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Incidents by Hour of Day (Avg)</div></div>
+          <div class="chart-wrap"><canvas id="ch-hourly-avg"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Incidents by Day of Week</div></div>
+          <div class="chart-wrap"><canvas id="ch-dow"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INCIDENT TRENDS ── -->
+    <div class="view" id="view-trends">
+      <div class="grid-2 mb-4">
+        <div class="card">
+          <div class="card-header"><div class="card-title">High Severity Trend — 90 Days</div></div>
+          <div class="chart-wrap"><canvas id="ch-trend90"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">AI Detection Confidence Over Time</div></div>
+          <div class="chart-wrap"><canvas id="ch-conf"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Staff Response Time (Minutes)</div></div>
+        <div class="chart-wrap"><canvas id="ch-response"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ── RISK ZONES ── -->
+    <div class="view" id="view-zones">
+      <div class="grid-2 mb-4">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Zone Risk Ranking</div></div>
+          <div class="risk-list" id="risk-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Incidents by Zone</div></div>
+          <div class="chart-wrap"><canvas id="ch-zones"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Store Heatmap</div></div>
+        <div class="card-body">
+          <canvas id="mgmt-map" class="store-map-canvas-el" height="270"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MONTHLY REPORTS ── -->
+    <div class="view" id="view-reports">
+      <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+        <div class="stat-card">
+          <div class="stat-top"><div class="stat-label">Report Period</div><div class="stat-icon-wrap">📅</div></div>
+          <div class="stat-value" style="font-size:1.2rem">Mar 2026</div>
+          <div class="stat-footer">Current month</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-top"><div class="stat-label">Total Incidents</div><div class="stat-icon-wrap">📊</div></div>
+          <div class="stat-value">183</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-top"><div class="stat-label">Resolved</div><div class="stat-icon-wrap">✅</div></div>
+          <div class="stat-value">171</div>
+          <div class="stat-footer">93.4% resolution rate</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Daily Incident Log</div>
+          <button class="btn btn-outline btn-sm" onclick="exportCSV()">↓ Export CSV</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Total</th><th>High</th><th>Medium</th><th>Low</th><th>Resolved</th><th>Avg Response</th><th>Peak Zone</th></tr></thead>
+            <tbody id="report-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════
+         CAMERA MANAGER — New Feature
+         ══════════════════════════════════════════════ -->
+    <div class="view" id="view-cameras">
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title"><div class="dot"></div>Connected Cameras</div>
+          <div class="card-actions">
+            <span style="font-size:.78rem;color:var(--text-3)" id="cam-count-label">9 cameras connected</span>
+            <button class="btn btn-primary btn-sm" onclick="openAddCamModal()">+ Add Camera</button>
+          </div>
+        </div>
+        <div class="cam-mgmt-grid" id="cam-mgmt-grid"></div>
+      </div>
+
+      <!-- Connection Status Card -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Network Overview</div></div>
+          <div class="info-row"><span class="info-key">Total Cameras</span><span class="info-val" id="net-total">9</span></div>
+          <div class="info-row"><span class="info-key">Online</span><span class="info-val" style="color:var(--green)" id="net-online">9</span></div>
+          <div class="info-row"><span class="info-key">Offline</span><span class="info-val" style="color:var(--red)" id="net-offline">0</span></div>
+          <div class="info-row"><span class="info-key">Pending Setup</span><span class="info-val" style="color:var(--amber)" id="net-pending">0</span></div>
+          <div class="info-row"><span class="info-key">Network Protocol</span><span class="info-val">RTSP / H.264</span></div>
+          <div class="info-row"><span class="info-key">Storage Mode</span><span class="info-val">Cloud DVR + Local</span></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Quick Actions</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn btn-outline" onclick="pingAllCameras()">🔄 Ping All Cameras</button>
+            <button class="btn btn-outline" onclick="restartFeed()">⚡ Restart All Feeds</button>
+            <button class="btn btn-outline" onclick="downloadCamReport()">📄 Download Camera Report</button>
+            <button class="btn btn-danger btn-sm" onclick="disconnectAll()">⛔ Disconnect All (Admin Only)</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══════════════════════════════════════════════
+     ADD CAMERA MODAL
+     ══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Connect New Camera</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step indicator -->
+      <div style="display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--border)">
+        <div class="tab-btn active" id="step-tab-1" onclick="goStep(1)">1 · Camera Info</div>
+        <div class="tab-btn" id="step-tab-2" onclick="goStep(2)">2 · Connection</div>
+        <div class="tab-btn" id="step-tab-3" onclick="goStep(3)">3 · Confirm</div>
+      </div>
+
+      <!-- Step 1: Camera Info -->
+      <div id="step-1">
+        <div class="form-row-2">
+          <div class="form-row">
+            <label>Camera ID *</label>
+            <input class="form-input" id="cam-id-input" placeholder="e.g. CAM-10" />
+          </div>
+          <div class="form-row">
+            <label>Camera Name</label>
+            <input class="form-input" id="cam-name-input" placeholder="e.g. Back Entrance" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Assigned Zone *</label>
+          <select class="form-select" id="cam-zone-input">
+            <option value="">Select zone…</option>
+            <option>Entrance</option>
+            <option>Checkout</option>
+            <option>Electronics</option>
+            <option>Clothing</option>
+            <option>Self-Checkout</option>
+            <option>Aisle 1-3</option>
+            <option>Aisle 4-6</option>
+            <option>Fitting Rooms</option>
+            <option>Storage</option>
+            <option>Parking Lot</option>
+            <option>Back Office</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Camera Type</label>
+          <select class="form-select" id="cam-type-input">
+            <option>Fixed CCTV</option>
+            <option>PTZ (Pan-Tilt-Zoom)</option>
+            <option>Dome Camera</option>
+            <option>Fisheye 360°</option>
+            <option>IP Camera</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Step 2: Connection -->
+      <div id="step-2" style="display:none">
+        <div class="form-row">
+          <label>IP Address *</label>
+          <input class="form-input" id="cam-ip-input" placeholder="e.g. 192.168.1.50" />
+          <div class="form-hint">Use the camera's local network IP address</div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-row">
+            <label>Port</label>
+            <input class="form-input" id="cam-port-input" placeholder="554" value="554" />
+          </div>
+          <div class="form-row">
+            <label>Protocol</label>
+            <select class="form-select" id="cam-proto-input">
+              <option>RTSP</option>
+              <option>HTTP</option>
+              <option>HTTPS</option>
+              <option>ONVIF</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-row">
+            <label>Username</label>
+            <input class="form-input" id="cam-user-input" placeholder="admin" />
+          </div>
+          <div class="form-row">
+            <label>Password</label>
+            <input class="form-input" type="password" id="cam-pass-input" placeholder="••••••••" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Resolution</label>
+          <select class="form-select" id="cam-res-input">
+            <option>1080p (Full HD)</option>
+            <option>720p (HD)</option>
+            <option>4K (Ultra HD)</option>
+            <option>480p (SD)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Step 3: Confirm -->
+      <div id="step-3" style="display:none">
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px">
+          <div style="font-weight:600;margin-bottom:10px;font-size:.85rem">Camera Summary</div>
+          <div id="confirm-summary" style="display:flex;flex-direction:column;gap:6px;font-size:.82rem;color:var(--text-2)"></div>
+        </div>
+        <div style="background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:var(--radius-sm);padding:12px;font-size:.8rem;color:var(--blue)">
+          ℹ️ The system will attempt to connect to this camera. It may take a few seconds to verify the feed. You can monitor connection status on this page.
+        </div>
+        <div id="connecting-indicator" style="display:none;margin-top:14px;text-align:center;font-size:.83rem;color:var(--text-2)">
+          <div style="margin-bottom:6px">🔄 Connecting to camera…</div>
+          <div style="height:4px;background:var(--border);border-radius:99px;overflow:hidden">
+            <div id="connect-progress" style="height:100%;background:var(--accent);border-radius:99px;width:0;transition:width .3s"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" id="btn-back" onclick="goStep(currentStep-1)" style="display:none">← Back</button>
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" id="btn-next" onclick="stepNext()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     ADD STAFF MODAL
+     ══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="staff-modal-overlay" style="display:none" onclick="if(event.target===this)closeStaffModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">👥 Add New Staff Member</div>
+      <button class="modal-close" onclick="closeStaffModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Full Name *</label>
+        <input class="form-input" id="staff-name" placeholder="e.g. John Doe" />
+      </div>
+      <div class="form-row">
+        <label>Staff ID * (e.g. S001)</label>
+        <input class="form-input" id="staff-id" placeholder="S001" />
+        <div class="form-hint">Must be unique</div>
+      </div>
+      <div class="form-row">
+        <label>Email</label>
+        <input class="form-input" id="staff-email" type="email" placeholder="john@retail.com" />
+      </div>
+      <div class="form-row">
+        <label>Role</label>
+        <select class="form-select" id="staff-role">
+          <option>Security</option>
+          <option>Cashier</option>
+          <option>Supervisor</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Status</label>
+        <label class="form-switch">
+          <input type="checkbox" id="staff-allowed" checked />
+          <span class="switch-slider"></span>
+        </label>
+        <span style="font-size:.82rem;color:var(--text-2);margin-left:12px">Allowed access</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeStaffModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveNewStaff()">Add Staff</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Camera Modal -->
+<div class="modal-overlay" id="edit-modal" style="display:none" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Edit Camera — <span id="edit-cam-id-label"></span></div>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-row"><label>Camera Name</label><input class="form-input" id="edit-name" /></div>
+      <div class="form-row"><label>Assigned Zone</label>
+        <select class="form-select" id="edit-zone">
+          <option>Entrance</option><option>Checkout</option><option>Electronics</option>
+          <option>Clothing</option><option>Self-Checkout</option><option>Aisle 1-3</option>
+          <option>Aisle 4-6</option><option>Fitting Rooms</option><option>Storage</option>
+          <option>Parking Lot</option><option>Back Office</option>
+        </select>
+      </div>
+      <div class="form-row"><label>Status</label>
+        <select class="form-select" id="edit-status">
+          <option value="online">Online</option>
+          <option value="offline">Offline</option>
+          <option value="pending">Pending</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditCamera()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+const sess = getSession();
+if (sess) { document.getElementById('uname').textContent=sess.user; document.getElementById('av').textContent=sess.user[0].toUpperCase(); }
+initNav('staff');
+
+loadStaff();
+loadTheft();
+loadCameras();
+
+/* ════════════════════════════════
+   STAFF DATA - from /api/staff
+   ════════════════════════════════ */
+let staffList = [];
+
+async function loadStaff() {
+  const resp = await apiGet('/staff');
+  staffList = resp.data;
+  renderStaffTable();
+}
+
+function renderStaffTable() {
+  const tbody = document.getElementById('staff-table-body');
+  tbody.innerHTML = '';
+  staffList.forEach(staff => {
+    const staffId = staff._id || staff.id;
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${staff.name}</td>
+      <td style="font-family:var(--mono)">${staff.id}</td>
+      <td>${staff.email}</td>
+      <td><span class="badge badge-blue">${staff.role}</span></td>
+      <td><span class="badge ${staff.allowed ? 'badge-green' : 'badge-red'}">${staff.allowed ? 'Allowed' : 'Blocked'}</span></td>
+    <td>
+        <button class="btn btn-outline btn-xs" onclick="toggleStaff('${staffId}')">
+          ${staff.allowed ? 'Block' : 'Allow'}
+        </button>
+        <button class="btn btn-danger btn-xs" onclick="deleteStaff('${staffId}')">Delete</button>
+      </td>`;
+    tbody.appendChild(row);
+  });
+}
+
+function openStaffModal() {
+  document.getElementById('staff-modal-overlay').style.display = 'flex';
+  // Reset form
+  document.getElementById('staff-name').value = '';
+  document.getElementById('staff-id').value = '';
+  document.getElementById('staff-email').value = '';
+  document.getElementById('staff-role').value = 'Security';
+  document.getElementById('staff-allowed').checked = true;
+}
+
+function closeStaffModal() {
+  document.getElementById('staff-modal-overlay').style.display = 'none';
+}
+
+async function saveNewStaff() {
+  const name = document.getElementById('staff-name').value.trim();
+  const id = document.getElementById('staff-id').value.trim();
+  const email = document.getElementById('staff-email').value.trim();
+  const role = document.getElementById('staff-role').value;
+  const allowed = document.getElementById('staff-allowed').checked;
+
+  if (!name || !id) {
+    toast('Missing Fields', 'Name and Staff ID are required', 'warn');
+    return;
+  }
+
+  if (staffList.find(s => s.id === id)) {
+    toast('Duplicate ID', 'Staff ID must be unique', 'error');
+    return;
+  }
+
+  const newStaff = { name, id, email: email || '', role, allowed };
+  const resp = await apiPost('/staff', newStaff);
+
+  if (resp?.success) {
+    toast('Staff Added!', `${name} (${id}) added successfully`, 'success');
+    closeStaffModal();
+    loadStaff(); // Refresh table
+  } else {
+    toast('Error', resp?.error || 'Failed to add staff', 'error');
+  }
+}
+
+async function toggleStaff(id) {
+  const staff = staffList.find(s => s._id === id || s.id === id);
+  if (!staff) return;
+  staff.allowed = !staff.allowed;
+  await apiPatch('/staff/' + (staff._id || staff.id), {allowed: staff.allowed});
+  renderStaffTable();
+  toast('Updated', `${staff.name} is now ${staff.allowed ? 'allowed' : 'blocked'}`, 'success');
+}
+
+async function deleteStaff(id) {
+  if (!confirm('Delete this staff member?')) return;
+  await apiDelete('/staff/' + id);
+  staffList = staffList.filter(s => s._id !== id && s.id !== id);
+  renderStaffTable();
+  toast('Deleted', 'Staff member removed', 'warn');
+}
+
+/* ════════════════════════════════
+   THEFT DATA - from /api/theft & /api/theft/stats
+   ════════════════════════════════ */
+let theftList = [];
+
+async function loadTheft() {
+  const [resp, statsResp] = await Promise.all([apiGet('/theft'), apiGet('/theft/stats')]);
+  theftList = resp.data;
+  
+  // Update stats
+  document.getElementById('theft-top-area').textContent = statsResp.stats.topArea;
+  document.getElementById('theft-top-staff').innerHTML = statsResp.stats.topResolver;
+  document.getElementById('theft-total').textContent = statsResp.stats.totalThefts;
+  
+  renderTheftTable();
+  renderTheftLeaderboard(statsResp.stats);
+  renderTheftChart(statsResp.stats.byLocation);
+}
+
+function renderTheftTable() {
+  const tbody = document.getElementById('theft-table-body');
+  tbody.innerHTML = '';
+  theftList.slice(0,10).forEach(incident => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td style="font-family:var(--mono)">${incident.id}</td>
+      <td>${new Date(incident.time).toLocaleString()}</td>
+      <td>${incident.camera}</td>
+      <td>${incident.item}</td>
+      <td>${incident.staffResolved || '—'}</td>
+      <td><span class="badge ${incident.status === 'Resolved' ? 'badge-green' : 'badge-amber'}">${incident.status}</span></td>`;
+    tbody.appendChild(row);
+  });
+}
+
+function renderTheftLeaderboard(stats) {
+  const lb = document.getElementById('theft-leaderboard');
+  lb.innerHTML = `
+    <div style="padding:12px 16px;font-weight:500;font-size:.85rem;border-bottom:1px solid var(--border)">John Doe - 12 cases</div>
+    <div style="padding:12px 16px;font-weight:400;font-size:.82rem;color:var(--text-2);border-bottom:1px solid var(--border)">Mike Johnson - 8 cases</div>
+    <div style="padding:12px 16px;font-weight:400;font-size:.82rem;color:var(--text-2)">Jane Smith - 5 cases</div>`;
+}
+
+function renderTheftChart(byLocation) {
+  const ctx = document.getElementById('theft-chart-location')?.getContext('2d');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(byLocation),
+      datasets: [{
+        data: Object.values(byLocation),
+        backgroundColor: ['rgba(239,68,68,.65)', 'rgba(245,158,11,.65)', 'rgba(99,102,241,.55)', 'rgba(34,197,94,.55)'],
+        borderRadius: 4
+      }]
+    },
+    options: barOpts(true)
+  });
+}
+
+/* ════════════════════════════════
+   CAMERA DATA (API integration)
+   ════════════════════════════════ */
+async function loadCameras() {
+  const resp = await apiGet('/cameras');
+  cameras = resp.data.length ? resp.data : cameras; // fallback to local
+  renderCamGrid();
+}
+
+/* ════════════════════════════════
+   INIT - Load all data on management page load
+   ════════════════════════════════ */
+Promise.all([loadStaff(), loadTheft(), loadCameras()]).catch(console.error);
+
+function renderCamGrid() {
+  const grid = document.getElementById('cam-mgmt-grid');
+  grid.innerHTML = '';
+  cameras.forEach(cam => {
+    const card = document.createElement('div');
+    card.className = `cam-mgmt-card${cam.status==='offline'?' offline':''}`;
+    card.id = 'cam-card-'+cam.id;
+    card.innerHTML = `
+      <div class="cam-header-row">
+        <div class="cam-id-tag">${cam.id}</div>
+        <div class="cam-status-dot ${cam.status}" title="${cam.status}"></div>
+      </div>
+      <div class="cam-zone">${cam.name}</div>
+      <div style="font-size:.75rem;color:var(--text-2);margin-bottom:2px">📍 ${cam.zone}</div>
+      <div class="cam-ip">${cam.ip}</div>
+      <div style="font-size:.72rem;color:var(--text-3);margin-bottom:10px">${cam.type} · ${cam.res}</div>
+      <div class="cam-actions">
+        <span class="badge ${cam.status==='online'?'badge-green':cam.status==='offline'?'badge-red':'badge-amber'}">${cam.status.charAt(0).toUpperCase()+cam.status.slice(1)}</span>
+        <button class="btn btn-outline btn-xs" onclick="openEditModal('${cam.id}')">Edit</button>
+        <button class="btn btn-danger btn-xs" onclick="removeCamera('${cam.id}')">✕</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+  updateNetworkStats();
+}
+
+function updateNetworkStats() {
+  const on  = cameras.filter(c=>c.status==='online').length;
+  const off = cameras.filter(c=>c.status==='offline').length;
+  const pen = cameras.filter(c=>c.status==='pending').length;
+  document.getElementById('net-total').textContent   = cameras.length;
+  document.getElementById('net-online').textContent  = on;
+  document.getElementById('net-offline').textContent = off;
+  document.getElementById('net-pending').textContent = pen;
+  document.getElementById('cam-count-label').textContent = `${cameras.length} cameras connected`;
+}
+
+/* ════════════════════════════════
+   ADD CAMERA MODAL
+   ════════════════════════════════ */
+let currentStep = 1;
+
+function openAddCamModal() {
+  document.getElementById('modal-overlay').style.display = 'flex';
+  // Reset
+  currentStep = 1;
+  ['cam-id-input','cam-name-input','cam-ip-input','cam-user-input','cam-pass-input'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('cam-zone-input').value='';
+  document.getElementById('cam-port-input').value='554';
+  document.getElementById('connecting-indicator').style.display='none';
+  goStep(1);
+}
+
+function closeModal() { document.getElementById('modal-overlay').style.display='none'; }
+
+function goStep(n) {
+  if (n < 1 || n > 3) return;
+  currentStep = n;
+  [1,2,3].forEach(i => {
+    document.getElementById('step-'+i).style.display = i===n?'block':'none';
+    const tab = document.getElementById('step-tab-'+i);
+    if (tab) tab.classList.toggle('active', i===n);
+  });
+  document.getElementById('btn-back').style.display = n>1?'inline-flex':'none';
+  document.getElementById('btn-next').textContent   = n===3 ? '✓ Connect Camera' : 'Next →';
+
+  if (n===3) buildConfirmSummary();
+}
+
+function buildConfirmSummary() {
+  const fields = [
+    ['Camera ID',   document.getElementById('cam-id-input')?.value   || '—'],
+    ['Name',        document.getElementById('cam-name-input')?.value  || '—'],
+    ['Zone',        document.getElementById('cam-zone-input')?.value  || '—'],
+    ['Type',        document.getElementById('cam-type-input')?.value  || '—'],
+    ['IP Address',  document.getElementById('cam-ip-input')?.value    || '—'],
+    ['Port',        document.getElementById('cam-port-input')?.value  || '554'],
+    ['Protocol',    document.getElementById('cam-proto-input')?.value || '—'],
+    ['Resolution',  document.getElementById('cam-res-input')?.value   || '—'],
+  ];
+  document.getElementById('confirm-summary').innerHTML = fields.map(([k,v])=>
+    `<div style="display:flex;gap:8px"><span style="width:90px;flex-shrink:0;color:var(--text-3)">${k}</span><span style="font-weight:500;color:var(--text-1)">${v}</span></div>`
+  ).join('');
+}
+
+function stepNext() {
+  if (currentStep === 1) {
+    const id   = document.getElementById('cam-id-input').value.trim();
+    const zone = document.getElementById('cam-zone-input').value;
+    if (!id)   { toast('Missing Field','Please enter a Camera ID','warn'); return; }
+    if (!zone) { toast('Missing Field','Please select a zone','warn'); return; }
+    if (cameras.find(c=>c.id===id)) { toast('Duplicate','A camera with this ID already exists','error'); return; }
+    goStep(2);
+  } else if (currentStep === 2) {
+    const ip = document.getElementById('cam-ip-input').value.trim();
+    if (!ip) { toast('Missing Field','Please enter an IP address','warn'); return; }
+    if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) { toast('Invalid IP','Please enter a valid IP address (e.g. 192.168.1.50)','warn'); return; }
+    goStep(3);
+  } else if (currentStep === 3) {
+    connectCamera();
+  }
+}
+
+function connectCamera() {
+  const ind  = document.getElementById('connecting-indicator');
+  const prog = document.getElementById('connect-progress');
+  const btn  = document.getElementById('btn-next');
+  ind.style.display='block'; btn.disabled=true; btn.textContent='Connecting…';
+
+  let w = 0;
+  const iv = setInterval(()=>{ w+=7; prog.style.width=Math.min(w,95)+'%'; },120);
+
+  setTimeout(()=>{
+    clearInterval(iv); prog.style.width='100%';
+    const newCam = {
+      id:     document.getElementById('cam-id-input').value.trim(),
+      name:   document.getElementById('cam-name-input').value.trim() || document.getElementById('cam-zone-input').value,
+      zone:   document.getElementById('cam-zone-input').value,
+      ip:     document.getElementById('cam-ip-input').value.trim(),
+      type:   document.getElementById('cam-type-input').value,
+      res:    document.getElementById('cam-res-input').value,
+      status: 'online',
+    };
+    cameras.push(newCam);
+    renderCamGrid();
+    closeModal();
+    toast('Camera Connected!', `${newCam.id} is now live on ${newCam.zone}`, 'success', 5000);
+    addMgmtLog(`New camera ${newCam.id} connected to ${newCam.zone} (${newCam.ip})`);
+  }, 1800);
+}
+
+/* ════════════════════════════════
+   EDIT CAMERA MODAL
+   ════════════════════════════════ */
+let editingCamId = null;
+
+function openEditModal(id) {
+  const cam = cameras.find(c=>c.id===id); if (!cam) return;
+  editingCamId = id;
+  document.getElementById('edit-cam-id-label').textContent = id;
+  document.getElementById('edit-name').value   = cam.name;
+  document.getElementById('edit-zone').value   = cam.zone;
+  document.getElementById('edit-status').value = cam.status;
+  document.getElementById('edit-modal').style.display='flex';
+}
+function closeEditModal() { document.getElementById('edit-modal').style.display='none'; }
+
+function saveEditCamera() {
+  const cam = cameras.find(c=>c.id===editingCamId); if (!cam) return;
+  cam.name   = document.getElementById('edit-name').value.trim();
+  cam.zone   = document.getElementById('edit-zone').value;
+  cam.status = document.getElementById('edit-status').value;
+  renderCamGrid();
+  closeEditModal();
+  toast('Camera Updated',`${editingCamId} settings saved`,'success');
+  addMgmtLog(`Camera ${editingCamId} settings updated`);
+}
+
+/* ════════════════════════════════
+   CAMERA ACTIONS
+   ════════════════════════════════ */
+function removeCamera(id) {
+  if (!confirm(`Remove ${id} from the system? This cannot be undone.`)) return;
+  cameras = cameras.filter(c=>c.id!==id);
+  renderCamGrid();
+  toast('Camera Removed',`${id} has been disconnected`,'warn');
+  addMgmtLog(`Camera ${id} removed from system`);
+}
+
+function pingAllCameras() {
+  toast('Pinging…','Sending ping to all cameras','info',2000);
+  setTimeout(()=>{
+    const offlineCams = cameras.filter(c=>c.status==='offline');
+    if (offlineCams.length===0) toast('All Clear','All 9 cameras responded successfully','success');
+    else toast('Issues Found',`${offlineCams.length} camera(s) not responding`,'error');
+    addMgmtLog(`Ping sent to all cameras — ${cameras.filter(c=>c.status==='online').length}/${cameras.length} online`);
+  },1500);
+}
+
+function restartFeed() {
+  toast('Restarting…','Camera feeds restarting, please wait','warn',3000);
+  setTimeout(()=>toast('Done','All feeds restarted successfully','success'),3200);
+  addMgmtLog('All camera feeds restarted by management');
+}
+
+function downloadCamReport() {
+  const rows = [['ID','Name','Zone','IP Address','Type','Resolution','Status']];
+  cameras.forEach(c=>rows.push([c.id,c.name,c.zone,c.ip,c.type,c.res,c.status]));
+  const csv = rows.map(r=>r.join(',')).join('\n');
+  const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv'})),download:'camera-report.csv'});
+  a.click(); toast('Downloaded','Camera report saved as CSV','success');
+}
+
+function disconnectAll() {
+  if (!confirm('Disconnect ALL cameras? This will shut down monitoring immediately.')) return;
+  cameras.forEach(c=>c.status='offline');
+  renderCamGrid();
+  toast('All Disconnected','All cameras have been taken offline','error',6000);
+  addMgmtLog('ALL cameras disconnected — system offline');
+}
+
+function addMgmtLog(msg) {
+  /* stores internally, could be pushed to backend */
+  console.log('[MGMT LOG]', new Date().toLocaleTimeString('en-GB'), msg);
+}
+
+/* ════════════════════════════════
+   CHARTS
+   ════════════════════════════════ */
+// Monthly 30-day
+const mData = randArr(30, 2, 15);
+new Chart(document.getElementById('ch-monthly').getContext('2d'), {
+  type:'line',
+  data:{ labels:last30Labels(), datasets:[{ label:'Incidents', data:mData,
+    borderColor:'rgba(245,158,11,.8)', backgroundColor:'rgba(245,158,11,.07)',
+    fill:true, tension:.4, pointRadius:1.5 }]},
+  options:{ ...lineOpts(false), scales:{ x:{grid:GRID,ticks:{...TICK,maxTicksLimit:8}}, y:{grid:GRID,ticks:TICK,beginAtZero:true} } }
+});
+
+// Donut
+new Chart(document.getElementById('ch-donut').getContext('2d'), {
+  type:'doughnut',
+  data:{ labels:['High','Medium','Low'], datasets:[{
+    data:[34,42,24],
+    backgroundColor:['rgba(239,68,68,.7)','rgba(245,158,11,.7)','rgba(99,102,241,.65)'],
+    borderColor:['#ef4444','#f59e0b','#6366f1'], borderWidth:2,
+  }]},
+  options: donutOpts()
+});
+
+// Hourly avg
+const hAvg = [.2,.1,.1,.1,.2,.3,.8,1.2,1.8,2.4,2.8,3.1,3.5,3.2,2.9,2.6,3.4,4.1,4.8,3.9,2.7,1.8,1.1,.5];
+new Chart(document.getElementById('ch-hourly-avg').getContext('2d'), {
+  type:'bar',
+  data:{ labels:hrLabels(), datasets:[{ data:hAvg,
+    backgroundColor: hAvg.map(v=>v>3?'rgba(239,68,68,.65)':v>2?'rgba(245,158,11,.6)':'rgba(99,102,241,.5)'),
+    borderRadius:3 }]},
+  options: barOpts()
+});
+
+// Day of week
+const dowD = [28,34,31,29,38,52,48];
+new Chart(document.getElementById('ch-dow').getContext('2d'), {
+  type:'bar',
+  data:{ labels:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], datasets:[{
+    data:dowD,
+    backgroundColor: dowD.map(v=>v>40?'rgba(239,68,68,.65)':'rgba(99,102,241,.55)'),
+    borderRadius:3 }]},
+  options: barOpts()
+});
+
+// Risk zones
+const ZONES = [
+  {name:'Electronics',pct:87,level:'high'},{name:'Checkout',pct:76,level:'high'},{name:'Self-Checkout',pct:71,level:'high'},
+  {name:'Clothing',pct:58,level:'medium'},{name:'Aisle 3',pct:49,level:'medium'},{name:'Entrance',pct:42,level:'medium'},
+  {name:'Fitting Rooms',pct:35,level:'medium'},{name:'Aisle 7',pct:21,level:'low'},{name:'Storage',pct:12,level:'low'},
+];
+const riskList = document.getElementById('risk-list');
+ZONES.forEach(z => {
+  riskList.innerHTML += `<div class="risk-row">
+    <div class="risk-name">${z.name}</div>
+    <div class="risk-track"><div class="risk-fill ${z.level}" style="width:${z.pct}%"></div></div>
+    <div class="risk-pct ${z.level}">${z.pct}%</div>
+  </div>`;
+});
+
+// Late-load charts (tab visibility)
+setTimeout(()=>{
+  // 90-day trend
+  const t90el = document.getElementById('ch-trend90');
+  if (t90el) new Chart(t90el.getContext('2d'), {
+    type:'line',
+    data:{ labels: Array.from({length:90},(_,i)=>{ const d=new Date(Date.now()-(89-i)*864e5); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'}); }),
+    datasets:[{ label:'High', data:randArr(90,1,7), borderColor:'rgba(239,68,68,.7)', backgroundColor:'rgba(239,68,68,.05)', fill:true, tension:.3, pointRadius:1 }]},
+    options:{ ...lineOpts(false), scales:{ x:{grid:GRID,ticks:{...TICK,maxTicksLimit:12}}, y:{grid:GRID,ticks:TICK,beginAtZero:true} } }
+  });
+
+  // Confidence
+  const cEl = document.getElementById('ch-conf');
+  if (cEl) new Chart(cEl.getContext('2d'), {
+    type:'line',
+    data:{ labels:last7Labels(), datasets:[{ label:'Avg Confidence %', data:randArr(7,72,94),
+      borderColor:'rgba(16,185,129,.8)', backgroundColor:'rgba(16,185,129,.06)', fill:true, tension:.4 }]},
+    options: lineOpts()
+  });
+
+  // Response
+  const rEl = document.getElementById('ch-response');
+  if (rEl) new Chart(rEl.getContext('2d'), {
+    type:'line',
+    data:{ labels:last7Labels(), datasets:[
+      { label:'Avg Response (min)', data:randArr(7,2,7), borderColor:'rgba(245,158,11,.8)', tension:.4 },
+      { label:'Target (3 min)',     data:Array(7).fill(3), borderColor:'rgba(99,102,241,.4)', borderDash:[5,5], pointRadius:0 },
+    ]},
+    options: lineOpts()
+  });
+
+  // Zone bar
+  const zEl = document.getElementById('ch-zones');
+  if (zEl) new Chart(zEl.getContext('2d'), {
+    type:'bar',
+    data:{ labels:ZONES.map(z=>z.name), datasets:[{
+      label:'Incidents', data:ZONES.map(z=>Math.floor(z.pct*.3+Math.random()*10)),
+      backgroundColor: ZONES.map(z=>z.level==='high'?'rgba(239,68,68,.65)':z.level==='medium'?'rgba(245,158,11,.6)':'rgba(99,102,241,.5)'),
+      borderRadius:3 }]},
+    options: barOpts(true)
+  });
+
+  // Management store map
+  const mc = document.getElementById('mgmt-map');
+  if (mc) { mc.width=mc.offsetWidth; mc.height=270; drawStoreMap(mc,['Electronics','Checkout','Self-Checkout']); }
+},300);
+
+/* ════════════════════════════════
+   MONTHLY REPORT TABLE
+   ════════════════════════════════ */
+const peakZones = ['Electronics','Checkout','Clothing','Entrance','Aisle 3'];
+const tbody = document.getElementById('report-tbody');
+for (let d=13;d>=1;d--) {
+  const dt    = new Date(Date.now()-d*864e5);
+  const total = 3+Math.floor(Math.random()*15);
+  const high  = Math.floor(total*.3), med=Math.floor(total*.5), low=total-high-med;
+  const res   = total-Math.floor(Math.random()*3);
+  const tr    = document.createElement('tr');
+  tr.innerHTML=`
+    <td style="font-family:var(--mono)">${dt.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td>
+    <td style="font-weight:600">${total}</td>
+    <td style="color:var(--red)">${high}</td>
+    <td style="color:var(--amber)">${med}</td>
+    <td style="color:var(--blue)">${low}</td>
+    <td style="color:var(--green)">${res}</td>
+    <td style="font-family:var(--mono)">${(1+Math.random()*5).toFixed(1)}m</td>
+    <td>${peakZones[Math.floor(Math.random()*peakZones.length)]}</td>`;
+  tbody.appendChild(tr);
+}
+
+function exportCSV() {
+  const rows=[['Date','Total','High','Medium','Low','Resolved','Avg Response','Peak Zone']];
+  document.querySelectorAll('#report-tbody tr').forEach(tr=>rows.push([...tr.querySelectorAll('td')].map(td=>td.textContent.trim())));
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'})),download:'retailshield-report.csv'});
+  a.click(); toast('Exported','Monthly report saved as CSV','success');
+}
+
+/* ── init camera manager on load ── */
+renderCamGrid();
+</script>
+</body>
+</html>

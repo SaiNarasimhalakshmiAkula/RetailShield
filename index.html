@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RetailShield — Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="login-page">
+  <div class="login-box">
+
+    <div class="login-brand">
+      <div class="login-brand-logo">🛡️</div>
+      <div class="login-brand-name">Retail<span>Shield</span></div>
+      <div class="login-brand-sub">AI-Powered Retail Security Platform</div>
+    </div>
+
+<div class="login-card" id="login-card">
+      <h2>Choose Your Role</h2>
+
+      <div class="role-grid">
+        <div class="role-btn active" data-role="admin" onclick="pickRole(this,'admin')">
+          <div class="role-emoji">🔧</div>
+          <div class="role-name">Admin</div>
+        </div>
+        <div class="role-btn" data-role="staff" onclick="pickRole(this,'staff')">
+          <div class="role-emoji">👮</div>
+          <div class="role-name">Staff</div>
+        </div>
+        <div class="role-btn" data-role="management" onclick="pickRole(this,'management')">
+          <div class="role-emoji">📊</div>
+          <div class="role-name">Management</div>
+        </div>
+      </div>
+
+      <div class="login-sep">— Sign in to continue —</div>
+
+      <div class="form-row">
+        <label>Username</label>
+        <input class="form-input" id="inp-user" type="text" value="admin" placeholder="Enter username" />
+      </div>
+
+      <div class="form-row">
+        <label>Password</label>
+        <input class="form-input" id="inp-pass" type="password" value="••••••••" placeholder="Enter password" />
+      </div>
+
+<button class="login-btn" id="login-btn" onclick="doLogin()">Sign In →</button>
+
+      <div class="toggle-link" onclick="toggleRegister()">Don't have account? <span class="link">Register</span></div>
+      <div class="login-footer">Demo mode — any credentials work. Role determines dashboard.</div>
+    </div>
+
+    <!-- Register Form (hidden) -->
+    <div class="register-card" id="register-card" style="display:none;">
+      <h2>Create Account</h2>
+      <div class="form-row">
+        <label>Full Name</label>
+        <input class="form-input" id="reg-name" type="text" placeholder="Your name" />
+      </div>
+      <div class="form-row">
+        <label>Email (optional)</label>
+        <input class="form-input" id="reg-email" type="email" placeholder="user@example.com" />
+      </div>
+      <div class="form-row">
+        <label>Username</label>
+        <input class="form-input" id="reg-user" type="text" placeholder="Username" />
+      </div>
+      <div class="form-row">
+        <label>Password</label>
+        <input class="form-input" id="reg-pass" type="password" placeholder="Password" />
+      </div>
+      <div class="form-row">
+        <label>Confirm Password</label>
+        <input class="form-input" id="reg-confirm-pass" type="password" placeholder="Confirm Password" />
+      </div>
+      <div class="form-row">
+        <label>Store</label>
+        <select class="form-input" id="reg-store">
+<option value="D-Mart">D-Mart</option>
+          <option value="Reliance Retail">Reliance Retail</option>
+          <option value="Vishal Mart">Vishal Mart</option>
+          <option value="Big Bazaar">Big Bazaar</option>
+          <option value="Spencer's">Spencer's</option>
+          <option value="More Supermarket">More Supermarket</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Role</label>
+        <select class="form-input" id="reg-role">
+          <option value="staff">Staff</option>
+          <option value="management">Management</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Branch Location (City)</label>
+        <select class="form-input" id="reg-branch">
+          <option value="Mumbai">Mumbai</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Bangalore">Bangalore</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Kolkata">Kolkata</option>
+          <option value="Pune">Pune</option>
+          <option value="Ahmedabad">Ahmedabad</option>
+          <option value="Rajahmundry">Rajahmundry (rjy)</option>
+          <option value="Kakinada">Kakinada (kkd)</option>
+          <option value="Visakhapatnam">Visakhapatnam</option>
+          <option value="Vijayawada">Vijayawada</option>
+          <option value="Guntur">Guntur</option>
+          <option value="Coimbatore">Coimbatore</option>
+          <option value="Jaipur">Jaipur</option>
+          <option value="Lucknow">Lucknow</option>
+        </select>
+      </div>
+      </div>
+      <div class="toggle-link" onclick="toggleRegister()">← Back to Login</div>
+
+  </div>
+</div>
+
+<script>
+  let role = 'admin';
+
+  function pickRole(el, r) {
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active'); role = r;
+  }
+
+  function doLogin() {
+    const user = document.getElementById('inp-user').value || 'User';
+    sessionStorage.setItem('rs_role', role);
+    sessionStorage.setItem('rs_user', user);
+    const btn = document.getElementById('login-btn');
+    btn.textContent = 'Signing in…'; btn.disabled = true;
+    setTimeout(() => {
+      window.location.href = { admin:'admin.html', staff:'staff.html', management:'management.html' }[role];
+    }, 600);
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+</script>
+<script src="script.js"></script>
+</body>
+</html>

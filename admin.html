@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RetailShield — Admin</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">🛡️</div>
+    <div class="brand-name">Retail<span>Shield</span></div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Monitoring</div>
+    <div class="nav-item" data-view="overview">
+      <span class="icon">⬛</span><span class="label">Overview</span>
+    </div>
+    <div class="nav-item" data-view="cameras">
+      <span class="icon">📷</span><span class="label">Camera Feeds</span>
+    </div>
+    <div class="nav-item" data-view="alerts">
+      <span class="icon">🚨</span><span class="label">Live Alerts</span>
+      <span class="badge" id="nav-badge">0</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">System</div>
+    <div class="nav-item" data-view="logs">
+      <span class="icon">📋</span><span class="label">Activity Log</span>
+    </div>
+    <div class="nav-item" data-view="history">
+      <span class="icon">🕘</span><span class="label">Alert History</span>
+    </div>
+    <div class="nav-item" data-view="settings">
+      <span class="icon">⚙️</span><span class="label">Settings</span>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" id="av">A</div>
+      <div class="user-meta">
+        <div class="user-name" id="uname">Admin</div>
+        <div class="user-role">Administrator</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Out</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Overview</div>
+    <div class="topbar-pill" id="sys-pill"><div class="pulse"></div>All Systems Online</div>
+    <div class="topbar-time" id="clock">--</div>
+  </div>
+
+  <div class="page">
+
+    <!-- ── OVERVIEW ── -->
+    <div class="view" id="view-overview">
+      <div class="stats-row">
+        <div class="stat-card red">
+          <div class="stat-top">
+            <div class="stat-label">Alerts Today</div>
+            <div class="stat-icon-wrap">🚨</div>
+          </div>
+          <div class="stat-value" id="st-today">0</div>
+          <div class="stat-footer"><span class="up" id="st-today-ch">—</span></div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-top">
+            <div class="stat-label">Active (Unread)</div>
+            <div class="stat-icon-wrap">⚠️</div>
+          </div>
+          <div class="stat-value" id="st-active">0</div>
+          <div class="stat-footer">Needs acknowledgement</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-top">
+            <div class="stat-label">Acknowledged</div>
+            <div class="stat-icon-wrap">✅</div>
+          </div>
+          <div class="stat-value" id="st-acked">0</div>
+          <div class="stat-footer"><span class="down">Resolved</span></div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-top">
+            <div class="stat-label">Cameras Online</div>
+            <div class="stat-icon-wrap">📷</div>
+          </div>
+          <div class="stat-value">9<span style="font-size:1rem;color:var(--text-3)">/9</span></div>
+          <div class="stat-footer"><span class="down">100% uptime</span></div>
+        </div>
+      </div>
+
+      <div class="grid-6-4">
+        <!-- 3-camera preview -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="dot"></div>Live Camera Preview</div>
+            <button class="btn btn-outline btn-sm" onclick="goTo('cameras')">View All →</button>
+          </div>
+          <div class="card-body">
+            <div class="cam-grid" style="grid-template-columns:repeat(3,1fr)">
+              <div class="cam-cell" id="ov-c1">
+                <canvas class="cam-canvas" id="ov-cv1"></canvas>
+                <div class="cam-badge"><div class="rec-dot"></div>REC</div>
+                <div class="cam-alert-label">ALERT</div>
+                <div class="cam-footer"><span class="cam-id">CAM-01</span><span>LIVE</span></div>
+              </div>
+              <div class="cam-cell" id="ov-c2">
+                <canvas class="cam-canvas" id="ov-cv2"></canvas>
+                <div class="cam-badge"><div class="rec-dot"></div>REC</div>
+                <div class="cam-alert-label">ALERT</div>
+                <div class="cam-footer"><span class="cam-id">CAM-02</span><span>LIVE</span></div>
+              </div>
+              <div class="cam-cell" id="ov-c3">
+                <canvas class="cam-canvas" id="ov-cv3"></canvas>
+                <div class="cam-badge"><div class="rec-dot"></div>REC</div>
+                <div class="cam-alert-label">ALERT</div>
+                <div class="cam-footer"><span class="cam-id">CAM-04</span><span>LIVE</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- recent alerts -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><div class="dot red"></div>Recent Alerts</div>
+          </div>
+          <div class="alert-feed" id="ov-alerts" style="max-height:240px"></div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Incidents This Week</div></div>
+          <div class="chart-wrap"><canvas id="ch-week"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Alerts by Hour (Today)</div></div>
+          <div class="chart-wrap"><canvas id="ch-hour"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CAMERAS ── -->
+    <div class="view" id="view-cameras">
+      <div class="card mb-4">
+        <div class="card-header">
+          <div class="card-title"><div class="dot"></div>All Camera Feeds</div>
+          <div style="font-size:.78rem;color:var(--text-3);font-family:var(--mono)">9 / 9 Online</div>
+        </div>
+        <div class="card-body">
+          <div class="cam-grid" id="full-cam-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LIVE ALERTS ── -->
+    <div class="view" id="view-alerts">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="dot red"></div>Live Alert Feed</div>
+          <div class="card-actions">
+            <button class="btn btn-outline btn-sm" onclick="clearAlerts()">Clear All</button>
+          </div>
+        </div>
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="setFilter(this,'all')">All</button>
+          <button class="filter-btn" onclick="setFilter(this,'high')">High</button>
+          <button class="filter-btn" onclick="setFilter(this,'medium')">Medium</button>
+          <button class="filter-btn" onclick="setFilter(this,'low')">Low</button>
+          <input class="search-box" id="alert-search" placeholder="Search alerts…" oninput="renderFiltered()"/>
+        </div>
+        <div class="alert-feed" id="full-alerts" style="max-height:520px"></div>
+      </div>
+    </div>
+
+    <!-- ── ACTIVITY LOG ── -->
+    <div class="view" id="view-logs">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">System Activity Log</div>
+          <span style="font-size:.72rem;color:var(--text-3)">Auto-refreshing</span>
+        </div>
+        <div class="log-feed" id="log-feed"></div>
+      </div>
+    </div>
+
+    <!-- ── ALERT HISTORY ── -->
+    <div class="view" id="view-history">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Alert History</div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Time</th><th>Zone</th><th>Camera</th><th>Description</th><th>Severity</th><th>Confidence</th><th>Status</th></tr>
+            </thead>
+            <tbody id="hist-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS ── -->
+    <div class="view" id="view-settings">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Detection Settings</div></div>
+          <div class="card-body">
+            <div class="form-row">
+              <label>Alert Interval (seconds)</label>
+              <input class="form-input" type="range" min="5" max="30" value="12" id="freq-range"
+                oninput="document.getElementById('freq-val').textContent=this.value+'s'"/>
+              <div class="form-hint"><span id="freq-val">12s</span> between AI-generated alerts</div>
+            </div>
+            <div class="form-row">
+              <label>Confidence Threshold</label>
+              <input class="form-input" type="range" min="50" max="99" value="70" id="conf-range"
+                oninput="document.getElementById('conf-val').textContent=this.value+'%'"/>
+              <div class="form-hint">Minimum confidence: <span id="conf-val">70%</span></div>
+            </div>
+            <button class="btn btn-primary" onclick="toast('Saved','Detection settings updated','success')">Save Settings</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><div class="card-title">System Status</div></div>
+          <div class="info-row"><span class="info-key">AI Model</span><span class="info-val">RetailShield v2.4</span></div>
+          <div class="info-row"><span class="info-key">Cameras Online</span><span class="info-val" style="color:var(--green)">9 / 9</span></div>
+          <div class="info-row"><span class="info-key">Database</span><span class="info-val" style="color:var(--green)">Connected</span></div>
+          <div class="info-row"><span class="info-key">API Server</span><span class="info-val" style="color:var(--green)">Running</span></div>
+          <div class="info-row"><span class="info-key">Session Uptime</span><span class="info-val" id="uptime-val">00:00:00</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script src="script.js"></script>
+<script>
+/* ─ session ─ */
+const sess = getSession();
+if (sess) { document.getElementById('uname').textContent = sess.user; document.getElementById('av').textContent = sess.user[0].toUpperCase(); }
+applyChartDefaults(); startClock('clock'); initNav('overview');
+
+/* ─ state ─ */
+let allAlerts = [...store.alerts];
+let cams = {};
+let filterSev = 'all';
+const startTs = Date.now();
+
+/* ─ uptime ─ */
+setInterval(() => {
+  const s = Math.floor((Date.now()-startTs)/1000);
+  const el = document.getElementById('uptime-val');
+  if (el) el.textContent = [Math.floor(s/3600),Math.floor((s%3600)/60),s%60].map(n=>String(n).padStart(2,'0')).join(':');
+},1000);
+
+/* ─ stat cards ─ */
+function updateStats() {
+  const today = allAlerts.filter(a => new Date(a.timestamp).toDateString() === new Date().toDateString());
+  const active = allAlerts.filter(a => !a.acked);
+  const acked  = allAlerts.filter(a =>  a.acked);
+  document.getElementById('st-today').textContent  = today.length;
+  document.getElementById('st-active').textContent = active.length;
+  document.getElementById('st-acked').textContent  = acked.length;
+  document.getElementById('nav-badge').textContent = active.length;
+}
+
+/* ─ alert row HTML ─ */
+function alertRowHTML(a) {
+  const badgeClass = {high:'badge-red',medium:'badge-amber',low:'badge-blue'}[a.sev||a.severity||'low'];
+  const sev = a.sev || a.severity || 'low';
+  return `
+    <div class="alert-row${a.acked?' acked':''}" id="ar-${a.id}">
+      <div class="sev-dot ${sev}"></div>
+      <div class="alert-body">
+        <div class="alert-msg">${a.msg}</div>
+        <div class="alert-meta">
+          <span>📍 ${a.zone}</span>
+          <span>📷 ${a.cam||a.camera}</span>
+          <span>🎯 ${a.confidence}%</span>
+          <span>🕐 ${timeAgo(a.timestamp)}</span>
+        </div>
+      </div>
+      <span class="badge ${badgeClass}">${sev.toUpperCase()}</span>
+    </div>`;
+}
+
+/* ─ prepend alert to a container ─ */
+function prependAlert(a, containerId) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  c.insertAdjacentHTML('afterbegin', alertRowHTML(a));
+  while (c.children.length > 60) c.removeChild(c.lastChild);
+}
+
+/* ─ init render ─ */
+allAlerts.slice(-6).reverse().forEach(a => prependAlert(a, 'ov-alerts'));
+allAlerts.slice().reverse().forEach(a => { prependAlert(a, 'full-alerts'); addHistRow(a); });
+updateStats();
+
+/* ─ history table ─ */
+function addHistRow(a) {
+  const tbody = document.getElementById('hist-tbody');
+  if (!tbody) return;
+  const badgeClass = {high:'badge-red',medium:'badge-amber',low:'badge-blue'}[a.sev||a.severity||'low'];
+  const sev = a.sev||a.severity||'low';
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td style="font-family:var(--mono);color:var(--accent)">${a.id}</td>
+    <td style="font-family:var(--mono)">${fmtDT(a.timestamp)}</td>
+    <td>${a.zone}</td>
+    <td style="font-family:var(--mono)">${a.cam||a.camera}</td>
+    <td>${a.msg}</td>
+    <td><span class="badge ${badgeClass}">${sev.toUpperCase()}</span></td>
+    <td style="font-family:var(--mono)">${a.confidence}%</td>
+    <td><span class="badge ${a.acked?'badge-green':'badge-gray'}">${a.acked?'Acknowledged':'Pending'}</span></td>`;
+  tbody.insertBefore(row, tbody.firstChild);
+  while (tbody.children.length > 80) tbody.removeChild(tbody.lastChild);
+}
+
+/* ─ activity log ─ */
+function addLog(type, tag, msg) {
+  const feed = document.getElementById('log-feed');
+  if (!feed) return;
+  const row = document.createElement('div');
+  row.className = 'log-row';
+  row.innerHTML = `<span class="log-time">${new Date().toLocaleTimeString('en-GB')}</span><span class="log-tag ${type}">[${tag}]</span><span class="log-msg">${msg}</span>`;
+  feed.insertBefore(row, feed.firstChild);
+  while (feed.children.length > 150) feed.removeChild(feed.lastChild);
+}
+
+addLog('success','BOOT','RetailShield AI engine started');
+addLog('info','AUTH',`${sess?.user} signed in as Administrator`);
+addLog('info','CAM','9/9 cameras connected and streaming');
+addLog('success','DB','Database connection established');
+
+/* ─ charts ─ */
+const wData = randArr(7, 3, 18);
+new Chart(document.getElementById('ch-week').getContext('2d'), {
+  type:'bar', data:{ labels:last7Labels(), datasets:[{
+    data:wData,
+    backgroundColor: wData.map(v=>v>12?'rgba(239,68,68,.65)':v>7?'rgba(245,158,11,.65)':'rgba(99,102,241,.55)'),
+    borderRadius:4, borderSkipped:false,
+  }]},
+  options: barOpts()
+});
+new Chart(document.getElementById('ch-hour').getContext('2d'), {
+  type:'line', data:{ labels:hrLabels(), datasets:[{
+    label:'Alerts', data:randArr(24,0,5),
+    borderColor:'rgba(99,102,241,.8)', backgroundColor:'rgba(99,102,241,.08)',
+    fill:true, tension:.4, pointRadius:2,
+  }]},
+  options: lineOpts(false)
+});
+
+/* ─ overview cameras ─ */
+['ov-cv1','ov-cv2','ov-cv3'].forEach((id,i) => {
+  const cv = document.getElementById(id); if (!cv) return;
+  cams['ov'+i] = simCamera(cv, 'CAM-0'+(i+1));
+});
+
+/* ─ full camera page ─ */
+const CAMS = ['CAM-01','CAM-02','CAM-03','CAM-04','CAM-05','CAM-06','CAM-07','CAM-08','CAM-09'];
+const fullGrid = document.getElementById('full-cam-grid');
+CAMS.forEach((id,i) => {
+  fullGrid.insertAdjacentHTML('beforeend',`
+    <div class="cam-cell" id="fc-${i}">
+      <canvas class="cam-canvas" id="fc-cv-${i}"></canvas>
+      <div class="cam-badge"><div class="rec-dot"></div>REC</div>
+      <div class="cam-alert-label">ALERT</div>
+      <div class="cam-footer"><span class="cam-id">${id}</span><span>LIVE</span></div>
+    </div>`);
+});
+setTimeout(()=>{
+  CAMS.forEach((_,i) => {
+    const cv = document.getElementById('fc-cv-'+i); if (!cv) return;
+    cams['fc'+i] = simCamera(cv, CAMS[i]);
+  });
+},100);
+
+/* ─ filter / search ─ */
+function setFilter(btn, sev) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); filterSev = sev; renderFiltered();
+}
+function renderFiltered() {
+  const q = (document.getElementById('alert-search')?.value||'').toLowerCase();
+  const c = document.getElementById('full-alerts'); if (!c) return;
+  c.innerHTML = '';
+  allAlerts.slice().reverse()
+    .filter(a => filterSev==='all' || (a.sev||a.severity)===filterSev)
+    .filter(a => !q || a.msg.toLowerCase().includes(q) || a.zone.toLowerCase().includes(q))
+    .forEach(a => c.insertAdjacentHTML('beforeend', alertRowHTML(a)));
+}
+function clearAlerts() {
+  document.getElementById('full-alerts').innerHTML='';
+  document.getElementById('ov-alerts').innerHTML='';
+  addLog('warn','ADMIN','All alerts cleared');
+  toast('Cleared','All alerts have been cleared','success');
+}
+
+/* ─ nav helper ─ */
+function goTo(view) { document.querySelector(`[data-view="${view}"]`)?.click(); }
+
+/* ─ AI simulation ─ */
+setInterval(() => {
+  const a = genAlert();
+  allAlerts.push(a);
+  apiPost('/alerts', a);
+
+  prependAlert(a,'ov-alerts');
+  prependAlert(a,'full-alerts');
+  addHistRow(a);
+  addLog('warn','AI', a.msg);
+  updateStats();
+
+  const sev = a.sev||a.severity;
+  toast(`${sev.toUpperCase()} — ${a.zone}`, a.msg, sev==='high'?'error':sev==='medium'?'warn':'info');
+
+  // flash camera
+  const ci = parseInt((a.cam||a.camera).replace('CAM-0',''))-1;
+  const fc = document.getElementById('fc-'+ci);
+  if (fc) { fc.classList.add('alert-cam'); setTimeout(()=>fc.classList.remove('alert-cam'),8000); }
+  if (cams['fc'+ci]) cams['fc'+ci].flash();
+  if (ci<3) { const oc=document.getElementById('ov-c'+(ci+1)); if(oc){oc.classList.add('alert-cam');setTimeout(()=>oc.classList.remove('alert-cam'),8000);} if(cams['ov'+ci]) cams['ov'+ci].flash(); }
+
+  // system status
+  const pill = document.getElementById('sys-pill');
+  if (pill && sev==='high') {
+    pill.className='topbar-pill alert-mode'; pill.innerHTML='<div class="pulse"></div>High Alert Active';
+    setTimeout(()=>{ pill.className='topbar-pill'; pill.innerHTML='<div class="pulse"></div>All Systems Online'; },10000);
+  }
+}, 12000);
+</script>
+</body>
+</html>

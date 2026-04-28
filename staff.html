@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RetailShield — Staff</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">🛡️</div>
+    <div class="brand-name">Retail<span>Shield</span></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Staff Panel</div>
+    <div class="nav-item" data-view="queue">
+      <span class="icon">🚨</span><span class="label">Alert Queue</span>
+      <span class="badge" id="nav-badge">0</span>
+    </div>
+    <div class="nav-item" data-view="map">
+      <span class="icon">🗺️</span><span class="label">Store Map</span>
+    </div>
+    <div class="nav-item" data-view="mylog">
+      <span class="icon">📋</span><span class="label">My Activity</span>
+    </div>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar" id="av">S</div>
+      <div class="user-meta">
+        <div class="user-name" id="uname">Staff</div>
+        <div class="user-role">Security Officer</div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Out</button>
+    </div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbar-title">Alert Queue</div>
+    <div class="topbar-pill" id="status-pill"><div class="pulse"></div>Monitoring</div>
+    <div class="topbar-time" id="clock">--</div>
+  </div>
+
+  <div class="page">
+
+    <!-- ── Stats row ── -->
+    <div class="stats-row">
+      <div class="stat-card red">
+        <div class="stat-top"><div class="stat-label">Pending</div><div class="stat-icon-wrap">🚨</div></div>
+        <div class="stat-value" id="st-pending">0</div>
+        <div class="stat-footer">Needs response</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-top"><div class="stat-label">Acknowledged</div><div class="stat-icon-wrap">✅</div></div>
+        <div class="stat-value" id="st-acked">0</div>
+        <div class="stat-footer">By you today</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-top"><div class="stat-label">High Priority</div><div class="stat-icon-wrap">⚡</div></div>
+        <div class="stat-value" id="st-high">0</div>
+        <div class="stat-footer">Immediate action needed</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-top"><div class="stat-label">Avg Response</div><div class="stat-icon-wrap">⏱️</div></div>
+        <div class="stat-value" id="st-avg">—</div>
+        <div class="stat-footer">minutes</div>
+      </div>
+    </div>
+
+    <!-- ── ALERT QUEUE ── -->
+    <div class="view" id="view-queue">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><div class="dot red"></div>Live Alert Queue</div>
+          <div class="card-actions">
+            <button class="btn btn-success btn-sm" onclick="ackAll()">Acknowledge All</button>
+          </div>
+        </div>
+        <div id="staff-queue" style="max-height:520px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+    <!-- ── STORE MAP ── -->
+    <div class="view" id="view-map">
+      <div class="grid-4-6">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Active Hot Zones</div></div>
+          <div class="card-body no-pad" id="hot-zone-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Store Floor Map</div></div>
+          <div class="card-body">
+            <div class="store-map-wrap">
+              <canvas id="map-canvas" class="store-map-canvas-el" height="260"></canvas>
+            </div>
+            <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-2)"><div style="width:10px;height:10px;border-radius:50%;background:var(--red)"></div>Active Alert</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-2)"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent)"></div>Monitored Zone</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--text-2)"><div style="width:10px;height:10px;border-radius:50%;background:var(--accent);opacity:.4"></div>Camera</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MY ACTIVITY ── -->
+    <div class="view" id="view-mylog">
+      <div class="card">
+        <div class="card-header"><div class="card-title">My Activity Log</div></div>
+        <div class="log-feed" id="my-log"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script src="script.js"></script>
+<script>
+const sess = getSession();
+if (sess) { document.getElementById('uname').textContent=sess.user; document.getElementById('av').textContent=sess.user[0].toUpperCase(); }
+startClock('clock'); initNav('queue');
+
+let pending = store.alerts.filter(a=>!a.acked).map(a=>({...a}));
+let ackedCount = store.alerts.filter(a=>a.acked).length;
+let mapCtrl = null;
+
+/* ─ render staff alert ─ */
+function renderStaffAlert(a) {
+  const q = document.getElementById('staff-queue');
+  const icons = {high:'🚨',medium:'⚠️',low:'ℹ️'};
+  const sev = a.sev||a.severity||'low';
+  const div = document.createElement('div');
+  div.className = 'staff-alert'; div.id = 'sa-'+a.id;
+  div.innerHTML = `
+    <div class="sa-icon ${sev}">${icons[sev]}</div>
+    <div class="sa-body">
+      <div class="sa-title">${a.msg}</div>
+      <div class="sa-location">📍 ${a.zone} &nbsp;·&nbsp; 📷 ${a.cam||a.camera}</div>
+      <div class="sa-time">🎯 ${a.confidence}% confidence &nbsp;·&nbsp; ${timeAgo(a.timestamp)}</div>
+    </div>
+    <button class="btn btn-success btn-sm" onclick="ackOne('${a.id}',this)" ${a.acked?'disabled':''}>
+      ${a.acked?'Done ✓':'Respond'}
+    </button>`;
+  q.insertBefore(div, q.firstChild);
+  while (q.children.length > 40) q.removeChild(q.lastChild);
+}
+
+function ackOne(id, btn) {
+  const el = document.getElementById('sa-'+id);
+  if (el) el.classList.add('acked');
+  btn.textContent = 'Done ✓'; btn.disabled = true;
+  pending = pending.filter(a=>a.id!==id);
+  ackedCount++;
+  addMyLog(`Responded to alert in ${el?.querySelector('.sa-location')?.textContent?.trim()||'unknown zone'}`);
+  updateStats(); updateHotZones();
+  toast('Alert Acknowledged','Response logged successfully','success');
+  apiPost('/alerts/ack',{id});
+}
+
+function ackAll() {
+  document.querySelectorAll('#staff-queue .btn:not(:disabled)').forEach(b=>b.click());
+}
+
+function updateStats() {
+  document.getElementById('st-pending').textContent = pending.length;
+  document.getElementById('st-acked').textContent   = ackedCount;
+  document.getElementById('st-high').textContent    = pending.filter(a=>(a.sev||a.severity)==='high').length;
+  document.getElementById('st-avg').textContent     = (1.5+Math.random()*3).toFixed(1);
+  document.getElementById('nav-badge').textContent  = pending.length;
+
+  const pill = document.getElementById('status-pill');
+  if (pending.some(a=>(a.sev||a.severity)==='high')) {
+    pill.className='topbar-pill alert-mode'; pill.innerHTML='<div class="pulse"></div>High Priority Active';
+  } else if (pending.length>0) {
+    pill.className='topbar-pill'; pill.style.background='var(--amber-bg)'; pill.style.color='var(--amber)';
+    pill.innerHTML='<div class="pulse"></div>'+pending.length+' Alert(s) Pending';
+  } else {
+    pill.className='topbar-pill'; pill.style=''; pill.innerHTML='<div class="pulse"></div>All Clear';
+  }
+}
+
+function updateHotZones() {
+  const zones = [...new Set(pending.slice(-5).map(a=>a.zone))];
+  const list = document.getElementById('hot-zone-list');
+  if (!list) return;
+  if (zones.length===0) {
+    list.innerHTML='<div class="empty-state"><div class="e-icon">✅</div><div class="e-text">No active hot zones right now</div></div>';
+  } else {
+    list.innerHTML = zones.map(z => {
+      const zAlerts = pending.filter(a=>a.zone===z);
+      const sev = zAlerts.some(a=>(a.sev||a.severity)==='high')?'high':zAlerts.some(a=>(a.sev||a.severity)==='medium')?'medium':'low';
+      const badgeCls = {high:'badge-red',medium:'badge-amber',low:'badge-blue'}[sev];
+      return `<div class="info-row">
+        <div><div style="font-weight:600;font-size:.85rem">📍 ${z}</div><div style="font-size:.72rem;color:var(--text-3);margin-top:2px">${zAlerts.length} alert${zAlerts.length>1?'s':''}</div></div>
+        <span class="badge ${badgeCls}">${sev.toUpperCase()}</span>
+      </div>`;
+    }).join('');
+  }
+  if (mapCtrl) mapCtrl.update(zones);
+}
+
+function addMyLog(msg) {
+  const l = document.getElementById('my-log'); if (!l) return;
+  const row = document.createElement('div'); row.className='log-row';
+  row.innerHTML=`<span class="log-time">${new Date().toLocaleTimeString('en-GB')}</span><span class="log-tag success">[ACK]</span><span class="log-msg">${msg}</span>`;
+  l.insertBefore(row,l.firstChild);
+}
+
+/* ─ init ─ */
+pending.forEach(a=>renderStaffAlert(a));
+updateStats();
+addMyLog(`Logged in as ${sess?.user}`);
+addMyLog('Monitoring active — watching for alerts');
+
+/* ─ map ─ */
+setTimeout(()=>{
+  const cv = document.getElementById('map-canvas'); if (!cv) return;
+  cv.width = cv.offsetWidth; cv.height = 260;
+  mapCtrl = drawStoreMap(cv, pending.slice(-3).map(a=>a.zone));
+  updateHotZones();
+},150);
+
+/* ─ AI feed ─ */
+setInterval(()=>{
+  const a = genAlert();
+  a.sev = a.sev||a.severity;
+  pending.push(a);
+  renderStaffAlert(a);
+  updateStats(); updateHotZones();
+  toast(`${(a.sev||a.severity).toUpperCase()} — ${a.zone}`, a.msg, (a.sev||a.severity)==='high'?'error':'warn',6000);
+  if ((a.sev||a.severity)==='high' && navigator.vibrate) navigator.vibrate([200,100,200]);
+},15000);
+</script>
+</body>
+</html>
